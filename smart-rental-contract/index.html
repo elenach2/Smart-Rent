@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlockChain Project</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src='node_modules/web3/dist/web3.min.js'></script>
+</head>
+
+<body>
+  <div id="app"></div>
+
+  <script type="text/javascript">
+
+    let toggle = `<button onclick={onSign()}>sign contract</button>`;
+
+    const App = function _App() {
+      return `
+        <div class="container">
+          <div class="card">
+            <div class="face face1">
+              <div class="content">
+                <h3>Account Details:</h3>
+                <p id="landlord_address"></p>
+                <p id="apartment">Apartment: </p>
+                <p id="price">Price: </p>
+                <p id="period">Time period: </p>
+                </br></br></br></br></br></br>
+                Status: <span id="status">Loading...</span>
+                </br></br></br></br></br></br></br>
+              </div>
+            </div>
+            <div class="face face2">
+              <div class="content">
+                <button onclick={onUpdateApartment()}>find adress</button>
+                <button onclick={onStart()}>Start</button>
+                <button onclick={onTerminate()}>Terminate</button>
+              </div>
+            </div>
+
+          </div>
+          <div class="card">
+            <div class="face face1">
+              <div class="content">
+                <h3>Account Details:</h3>
+                <p id="tenant_address"></p>
+                </br></br></br></br></br></br>
+                </br></br></br></br></br></br></br>
+                </br></br></br></br></br></br>
+              </div>
+            </div>
+            <div class="face face2">
+              <div class="content">
+                
+                <button onclick={onSign()}>sign contract</button>
+                <button onclick={onPay()}>Pay</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `
+    };
+
+    document.getElementById("app").innerHTML = App();
+
+    App.state = {
+      apartment: null,
+      setApartment: (obj) => {
+        setState(() => App.state.apartment = obj);
+      },
+      gotData: false,
+      setGotData: (bool) => {
+        setState(() => App.state.gotData = bool);
+      },
+      started: false,
+      setStarted: (bool) => {
+        setState(() => App.state.started = bool);
+      },
+      signed: false,
+      setSigned: (bool) => {
+        setState(() => App.state.signed = bool);
+      },
+      terminated: false,
+      setTerminated: (bool) => {
+        setState(() => App.state.terminated = bool);
+      }
+      // apartment_address: '',
+      // setAddress: (newAddress) => {
+      //   setState(() => App.state.apartment_address = newAddress);
+      // },
+      // rent: 0,
+      // setRent: (value) => {
+      //   setState(() => App.state.rent = value);
+      // },
+      // period: 0,
+      // setPeriod: (value) => {
+      //   setState(() => App.state.period = value);
+      // },
+      // landlord: '',
+      // setLandlord: (newAddress) => {
+      //   setState(() => App.state.landlord = newAddress);
+      // },
+      // tenant: '',
+      // setTenant: (newAddress) => {
+      //   setState(() => App.state.tenant = newAddress);
+      // },
+      // status: null,
+      // setStatus: (value) => {
+      //   setState(() => App.state.status = value);
+      // }
+    }
+
+    const setState = (callback) => {
+      callback();
+      updateTree(); // extracted function
+    }
+
+    const updateTree = () => {
+      document.getElementById("app").innerHTML = App();
+    };
+
+    async function loadWeb3() {
+      if (window.ethereum) {
+        window.web3 = new Web3(window.ethereum);
+        window.ethereum.enable();
+      }
+    }
+
+    //first argument is the ABI from Solidity compiler
+    //second argument is the contract address from the Solidity deployment
+    async function loadContract() {
+      return await new window.web3.eth.Contract([
+        {
+          "constant": true,
+          "inputs": [],
+          "name": "currentPeriod",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": true,
+          "inputs": [],
+          "name": "getCurrentPeriod",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": true,
+          "inputs": [],
+          "name": "createdTimestamp",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [],
+          "name": "terminateContract",
+          "outputs": [],
+          "payable": true,
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [],
+          "name": "confirmAgreement",
+          "outputs": [],
+          "payable": true,
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "constant": true,
+          "inputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "paidrents",
+          "outputs": [
+            {
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "name": "value",
+              "type": "uint256"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [],
+          "name": "payRent",
+          "outputs": [],
+          "payable": true,
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "constant": true,
+          "inputs": [],
+          "name": "apartment",
+          "outputs": [
+            {
+              "name": "apartment_address",
+              "type": "string"
+            },
+            {
+              "name": "rent",
+              "type": "uint256"
+            },
+            {
+              "name": "period",
+              "type": "uint256"
+            },
+            {
+              "name": "landlord",
+              "type": "address"
+            },
+            {
+              "name": "tenant",
+              "type": "address"
+            },
+            {
+              "name": "state",
+              "type": "uint8"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [],
+          "name": "RentalAgreement",
+          "outputs": [],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "anonymous": false,
+          "inputs": [],
+          "name": "contractCreated",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [],
+          "name": "agreementConfirmed",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [],
+          "name": "paidRent",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [],
+          "name": "contractTerminated",
+          "type": "event"
+        }
+      ], '0xA635EE13D8661832cEE5F182eC335e216BB0e75C')
+    }
+
+    async function load() {
+      await loadWeb3();
+      window.contract = await loadContract();
+      updateStatus('Ready!');
+    }
+
+    async function delay(ms, message) {
+      setTimeout(function () {
+        updateStatus(message);
+      }, ms);
+    }
+
+    async function onUpdateApartment() {
+      App.state.setApartment(
+        await window.contract.methods.apartment().call()
+      );
+      App.state.setGotData(true);
+      await delay(1000, 'Ready!');
+    }
+
+    function getData() {
+      getLandlord();
+      getApartment();
+      getPrice();
+      getPeriod();
+      getTenant();
+    }
+
+    async function onStart() {
+      if (App.state.gotData) {
+        const acc = await web3.eth.getAccounts();
+        if (acc[0] !== App.state.apartment.landlord) {
+          console.error('Must be landlord to start the contract!');
+        } else {
+          initializeContract();
+          await delay(0, 'Fetching Data...');
+          setTimeout(function () {
+            getData();
+          }, 2000);
+          await delay(2000, 'Fetched Data Successfully...');
+          await delay(4000, 'Waiting for Tenants Signature...');
+          App.state.setStarted(true);
+        }
+      } else {
+        console.error('First get find apartment address');
+      }
+
+    }
+
+    async function onSign() {
+      if (App.state.started) {
+        if (!App.state.signed) {
+          const acc = await web3.eth.getAccounts();
+          if (acc[0] !== App.state.apartment.tenant) {
+            console.error('Must be tenant to sign the contract!');
+          } else {
+            try {
+              await window.contract.methods.confirmAgreement().send({
+                from: App.state.apartment.tenant,
+              });
+              onUpdateApartment();
+              getData();
+              console.log('Signed');
+              await delay(0, 'Signed');
+              App.state.setSigned(true);
+            } catch (e) {
+              console.error(e);
+              console.log('Please make sure you`re logged to the right metamask user');
+            }
+          }
+        } else {
+          console.error('The contracted is already signed!');
+        }
+      } else {
+        console.error('The contracted did not start yet!');
+      }
+    }
+
+    async function onPay() {
+      if (App.state.signed) {
+        const acc = await web3.eth.getAccounts();
+        if (acc[0] !== App.state.apartment.tenant) {
+          console.error('Must be tenant to pay the rent!');
+        } else {
+          console.log('Payment in Process...');
+          await delay(0, 'Payment in Process...');
+          try {
+            let gas = 1000000;
+            await window.contract.methods.payRent().send({
+              from: App.state.apartment.tenant,
+              value: App.state.apartment.rent,
+              gas
+            });
+            getData();
+            console.log('Paid successfully!');
+            await delay(2000, 'Paid successfully!');
+            await delay(3000, 'Ready!');
+          } catch (e) {
+            console.error(e);
+            console.log('Please make sure you`re logged to the right metamask user and have enough Ether');
+          }
+        }
+      } else {
+        console.error('The contracted is not signed yet!');
+      }
+    }
+
+    async function onTerminate() {
+      if (App.state.signed) {
+        if (!App.state.terminated) {
+          const acc = await web3.eth.getAccounts();
+          if (acc[0] !== App.state.apartment.landlord) {
+            console.error('Must be landlord to terminate the contract!');
+          } else {
+            try {
+              console.log('Termination in Process...');
+              await delay(0, 'Termination in Process...');
+              await window.contract.methods.terminateContract().send({
+                from: App.state.apartment.landlord,
+              });
+              getData();
+              console.log('The contract was terminated successfully!');
+              await delay(0, 'Terminated!');
+              App.state.setTerminated(true);
+            } catch (e) {
+              console.error(e);
+            }
+          }
+        } else {
+          console.error('This contract is already terminated!');
+        }
+      } else {
+        console.error('The contracted was not signed yet');
+      }
+    }
+
+    async function initializeContract() {
+      await window.contract.methods.RentalAgreement().call();
+    }
+
+    function getLandlord() {
+      const landlordEl = document.getElementById('landlord_address');
+      landlordEl.innerHTML += `${App.state.apartment.landlord}`;
+    }
+
+    function getApartment() {
+      const landlordEl = document.getElementById('apartment');
+      landlordEl.innerHTML += `${App.state.apartment.apartment_address}`;
+    }
+
+    function getPrice() {
+      const landlordEl = document.getElementById('price');
+      landlordEl.innerHTML += `${App.state.apartment.rent}`;
+    }
+
+    function getPeriod() {
+      const landlordEl = document.getElementById('period');
+      landlordEl.innerHTML += `${App.state.apartment.period}`;
+    }
+
+    function getTenant() {
+      const landlordEl = document.getElementById('tenant_address');
+      landlordEl.innerHTML += `${App.state.apartment.tenant}`;
+    }
+
+    function updateStatus(status) {
+      const statusEl = document.getElementById('status');
+      statusEl.innerHTML = status;
+    }
+
+    updateTree();
+    load();
+
+  </script>
+
+</body>
+
+</html>

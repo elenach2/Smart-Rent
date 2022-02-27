@@ -1,0 +1,126 @@
+body {
+  background-image: url("./clipboards-1.jpeg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: 60% 100%;
+  background-position: center;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: consolas;
+  overflow: hidden;
+}
+
+.container {
+  width: 800px;
+  margin-top: 10%;
+  position: static;
+  display: flex;
+  /* margin: 150px 0px 5200px 100px; */
+  justify-content: space-evenly;
+}
+
+.container .card {
+  position: relative;
+}
+
+.container .card .face {
+  width: 350px;
+  height: 500px;
+  transition: 0.5s;
+  border-radius: 10px;
+}
+
+.container .card .face.face1 {
+  position: relative;
+  background: gainsboro;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  transform: translateY(100px);
+}
+
+.container .card .face.face2 {
+  position: relative;
+  display: flex;
+  margin: -100px 0px 100px 0;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+button {
+  cursor: pointer;
+}
+
+
+@media screen and (max-width: 1500px) {
+    .container {
+        width: 800px;
+        margin-top: 10%;
+        position: static;
+        display: flex;
+        /* margin: 150px 0px 5200px 100px; */
+        justify-content: space-evenly;
+      }
+    .container .card .face {
+        width: 300px;
+        height: 430px;
+        transition: 0.5s;
+        border-radius: 10px;
+      }
+  }
+
+  @media screen and (max-width: 1200px) {
+    .container {
+        width: 800px;
+        margin-top: 10%;
+        position: static;
+        display: flex;
+        /* margin: 150px 0px 5200px 100px; */
+        justify-content: space-evenly;
+      }
+    .container .card .face {
+        width: 200px;
+        height: 430px;
+        transition: 0.5s;
+        border-radius: 10px;
+      }
+  }
+
+  @media screen and (max-width: 1000px) {
+    .container {
+        width: 800px;
+        margin-top: 10%;
+        position: static;
+        display: flex;
+        /* margin: 150px 0px 5200px 100px; */
+        justify-content: space-evenly;
+      }
+    .container .card .face {
+        width: 120px;
+        height: 450px;
+        transition: 0.5s;
+        border-radius: 10px;
+      }
+  }
+
+  @media screen and (max-width: 850px) {
+    .container {
+        width: 800px;
+        margin-top: 10%;
+        position: static;
+        display: flex;
+        /* margin: 150px 0px 5200px 100px; */
+        justify-content: space-evenly;
+      }
+    .container .card .face {
+        width: 80px;
+        height: 470px;
+        transition: 0.5s;
+        border-radius: 10px;
+      }
+  }
